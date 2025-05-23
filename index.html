@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabáMatch - Encontre a babá perfeita</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Tela de Login/Cadastro -->
+    <div id="auth-screen" class="screen active">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>BabáMatch</h1>
+                <p>Encontre a babá perfeita para sua família</p>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <h2>Entrar</h2>
+                <form id="login-form-element">
+                    <div class="input-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="login-password">Senha</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <div id="login-error" class="error-message"></div>
+                    <button type="submit" class="btn-primary" id="login-button">Entrar</button>
+                </form>
+                <p class="auth-switch">
+                    Não tem uma conta? 
+                    <a href="#" onclick="showRegister()">Cadastre-se</a>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form">
+                <h2>Cadastrar</h2>
+                <form id="register-form-element">
+                    <div class="input-group">
+                        <label for="register-name">Nome completo</label>
+                        <input type="text" id="register-name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="register-password">Senha</label>
+                        <input type="password" id="register-password" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="register-phone">Telefone</label>
+                        <input type="tel" id="register-phone">
+                    </div>
+                    <div class="input-group">
+                        <label>Tipo de usuário</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="userType" value="parent" checked onchange="toggleRegisterFields()">
+                                <span>Sou pai/mãe procurando babá</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="userType" value="babysitter" onchange="toggleRegisterFields()">
+                                <span>Sou babá procurando trabalho</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Campos específicos para babás -->
+                    <div id="babysitter-fields" style="display: none;">
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="register-age">Idade</label>
+                                <input type="number" id="register-age" min="16" max="80">
+                            </div>
+                            <div class="input-group">
+                                <label for="register-hourly-rate">Valor/Hora (R$)</label>
+                                <input type="number" id="register-hourly-rate" min="0" step="0.01">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="register-experience">Experiência</label>
+                            <input type="text" id="register-experience" placeholder="Ex: 5 anos">
+                        </div>
+                        <div class="input-group">
+                            <label for="register-location">Localização</label>
+                            <input type="text" id="register-location" placeholder="Ex: São Paulo, SP">
+                        </div>
+                        <div class="input-group">
+                            <label for="register-bio">Sobre você</label>
+                            <textarea id="register-bio" rows="3" placeholder="Conte um pouco sobre você..."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label for="register-skills">Habilidades (separadas por vírgula)</label>
+                            <input type="text" id="register-skills" placeholder="Ex: Primeiros socorros, Pedagogia">
+                        </div>
+                    </div>
+
+                    <!-- Campos específicos para pais -->
+                    <div id="parent-fields">
+                        <div class="input-group">
+                            <label for="register-num-children">Número de Crianças</label>
+                            <input type="number" id="register-num-children" min="1" max="10">
+                        </div>
+                        <div class="input-group">
+                            <label for="register-children-ages">Idades das Crianças</label>
+                            <input type="text" id="register-children-ages" placeholder="Ex: 3 anos, 5 anos">
+                        </div>
+                    </div>
+
+                    <div id="register-error" class="error-message"></div>
+                    <button type="submit" class="btn-primary" id="register-button">Cadastrar</button>
+                </form>
+                <p class="auth-switch">
+                    Já tem uma conta? 
+                    <a href="#" onclick="showLogin()">Faça login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela Principal (Swipe) -->
+    <div id="main-screen" class="screen">
+        <header class="main-header">
+            <h1>BabáMatch</h1>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="showChat()" id="chat-btn">
+                    <i class="fas fa-comment"></i>
+                    <span class="badge" id="matches-count">0</span>
+                </button>
+                <button class="btn-icon" onclick="showProfile()">
+                    <i class="fas fa-user"></i>
+                </button>
+                <button class="btn-icon" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="swipe-container">
+            <div id="babysitter-card" class="card">
+                <!-- Card content will be populated by JavaScript -->
+            </div>
+
+            <div class="swipe-actions">
+                <button class="btn-swipe btn-reject" onclick="swipeLeft()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="btn-swipe btn-like" onclick="swipeRight()">
+                    <i class="fas fa-heart"></i>
+                </button>
+            </div>
+
+            <div id="no-more-cards" class="no-cards" style="display: none;">
+                <h2>Você viu todas as babás disponíveis!</h2>
+                <p>Verifique seus matches ou volte mais tarde.</p>
+                <button class="btn-primary" onclick="showChat()">
+                    Ver Matches (<span id="final-matches-count">0</span>)
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Tela de Chat -->
+    <div id="chat-screen" class="screen">
+        <header class="chat-header">
+            <button class="btn-back" onclick="showMain()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>Mensagens</h2>
+        </header>
+
+        <div class="chat-container">
+            <div class="matches-list">
+                <h3>Seus Matches</h3>
+                <div id="matches-container">
+                    <p class="no-matches">Você ainda não tem matches</p>
+                </div>
+            </div>
+
+            <div class="chat-area" id="chat-area" style="display: none;">
+                <div class="chat-header-info">
+                    <div class="chat-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="chat-info">
+                        <h4 id="chat-name">Nome da Babá</h4>
+                        <p id="chat-rate">R$ 50/hora</p>
+                    </div>
+                </div>
+
+                <div class="messages-container" id="messages-container">
+                    <!-- Messages will be populated here -->
+                </div>
+
+                <div class="message-input">
+                    <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+                    <button id="send-message-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Perfil -->
+    <div id="profile-screen" class="screen">
+        <header class="profile-header">
+            <button class="btn-back" onclick="showMain()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>Meu Perfil</h2>
+            <button class="btn-save" onclick="saveProfile()" id="save-profile-btn">
+                <i class="fas fa-save"></i>
+            </button>
+        </header>
+
+        <div class="profile-container">
+            <div class="profile-photo-section">
+                <div class="profile-photo" id="profile-photo">
+                    <i class="fas fa-user"></i>
+                </div>
+                <button class="btn-change-photo" onclick="changePhoto()">
+                    <i class="fas fa-camera"></i>
+                    Alterar Foto
+                </button>
+                <input type="file" id="photo-input" accept="image/*" style="display: none;">
+            </div>
+
+            <form id="profile-form" class="profile-form">
+                <div class="form-section">
+                    <h3>Informações Básicas</h3>
+                    <div class="input-group">
+                        <label for="profile-name">Nome</label>
+                        <input type="text" id="profile-name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-email">Email</label>
+                        <input type="email" id="profile-email" disabled>
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-phone">Telefone</label>
+                        <input type="tel" id="profile-phone">
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-address">Endereço</label>
+                        <textarea id="profile-address" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Seção específica para babás -->
+                <div id="babysitter-section" class="form-section" style="display: none;">
+                    <h3>Informações da Babá</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="profile-age">Idade</label>
+                            <input type="number" id="profile-age" min="16" max="80">
+                        </div>
+                        <div class="input-group">
+                            <label for="profile-hourly-rate">Valor/Hora (R$)</label>
+                            <input type="number" id="profile-hourly-rate" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-experience">Experiência</label>
+                        <input type="text" id="profile-experience" placeholder="Ex: 5 anos">
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-location">Localização</label>
+                        <input type="text" id="profile-location" placeholder="Ex: São Paulo, SP">
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-bio">Sobre mim</label>
+                        <textarea id="profile-bio" rows="4" placeholder="Conte um pouco sobre você e sua experiência..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-skills">Habilidades (separadas por vírgula)</label>
+                        <input type="text" id="profile-skills" placeholder="Ex: Primeiros socorros, Pedagogia, Recreação">
+                    </div>
+                    <div id="validation-status" class="validation-status">
+                        <i class="fas fa-clock"></i>
+                        <span>Aguardando validação</span>
+                    </div>
+                </div>
+
+                <!-- Seção específica para pais -->
+                <div id="parent-section" class="form-section" style="display: none;">
+                    <h3>Informações sobre as Crianças</h3>
+                    <div class="input-group">
+                        <label for="profile-num-children">Número de Crianças</label>
+                        <input type="number" id="profile-num-children" min="1" max="10">
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-children-ages">Idades das Crianças</label>
+                        <input type="text" id="profile-children-ages" placeholder="Ex: 3 anos, 5 anos">
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-special-needs">Necessidades Especiais</label>
+                        <textarea id="profile-special-needs" rows="3" placeholder="Descreva qualquer necessidade especial ou informação importante..."></textarea>
+                    </div>
+                </div>
+            </form>
+
+            <div id="profile-message" class="profile-message"></div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
