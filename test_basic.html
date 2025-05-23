@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Básico de Conectividade</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #1565c0;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
+        .info {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Diagnóstico de Conectividade</h1>
+    
+    <div class="card">
+        <h2>1. Teste de Conectividade Básica</h2>
+        <p>Verifica se conseguimos acessar arquivos no servidor.</p>
+        <button onclick="testBasicConnectivity()">Testar Conectividade</button>
+        <div id="connectivity-result"></div>
+    </div>
+    
+    <div class="card">
+        <h2>2. Teste de Arquivo Estático</h2>
+        <p>Verifica se conseguimos acessar um arquivo de texto simples.</p>
+        <button onclick="testStaticFile()">Testar Arquivo Estático</button>
+        <div id="static-result"></div>
+    </div>
+    
+    <div class="card">
+        <h2>3. Informações do Navegador</h2>
+        <p>Informações sobre o ambiente atual.</p>
+        <button onclick="showBrowserInfo()">Mostrar Informações</button>
+        <div id="browser-result"></div>
+    </div>
+    
+    <div class="card">
+        <h2>4. Teste de Caminhos</h2>
+        <p>Testa diferentes caminhos para os arquivos da API.</p>
+        <button onclick="testPaths()">Testar Caminhos</button>
+        <div id="paths-result"></div>
+    </div>
+
+    <script>
+        function showResult(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+        
+        // Teste 1: Conectividade básica
+        async function testBasicConnectivity() {
+            showResult('connectivity-result', 'info', 'Testando conectividade...');
+            
+            try {
+                // Testar se conseguimos fazer uma requisição para o próprio domínio
+                const response = await fetch(window.location.href);
+                if (response.ok) {
+                    showResult('connectivity-result', 'success', 
+                        `✅ Conectividade OK\nStatus: ${response.status}\nURL: ${window.location.href}`);
+                } else {
+                    showResult('connectivity-result', 'error', 
+                        `❌ Problema de conectividade\nStatus: ${response.status}`);
+                }
+            } catch (error) {
+                showResult('connectivity-result', 'error', 
+                    `❌ Erro de conectividade: ${error.message}`);
+            }
+        }
+        
+        // Teste 2: Arquivo estático
+        async function testStaticFile() {
+            showResult('static-result', 'info', 'Testando arquivo estático...');
+            
+            try {
+                const response = await fetch('test.txt');
+                if (response.ok) {
+                    const text = await response.text();
+                    showResult('static-result', 'success', 
+                        `✅ Arquivo estático acessível\nConteúdo: ${text}`);
+                } else {
+                    showResult('static-result', 'error', 
+                        `❌ Arquivo não encontrado\nStatus: ${response.status}\nTentando criar arquivo...`);
+                    
+                    // Instruções para criar o arquivo
+                    showResult('static-result', 'info', 
+                        `ℹ️ Crie um arquivo chamado 'test.txt' no mesmo diretório desta página com o conteúdo: "Teste de arquivo estático funcionando!"`);
+                }
+            } catch (error) {
+                showResult('static-result', 'error', 
+                    `❌ Erro ao acessar arquivo: ${error.message}`);
+            }
+        }
+        
+        // Teste 3: Informações do navegador
+        function showBrowserInfo() {
+            const info = `
+🌐 Informações do Navegador:
+- URL atual: ${window.location.href}
+- Protocolo: ${window.location.protocol}
+- Host: ${window.location.host}
+- Caminho: ${window.location.pathname}
+- User Agent: ${navigator.userAgent}
+- Idioma: ${navigator.language}
+- Online: ${navigator.onLine ? 'Sim' : 'Não'}
+- Cookies habilitados: ${navigator.cookieEnabled ? 'Sim' : 'Não'}
+            `;
+            showResult('browser-result', 'info', info);
+        }
+        
+        // Teste 4: Diferentes caminhos
+        async function testPaths() {
+            showResult('paths-result', 'info', 'Testando diferentes caminhos...');
+            
+            const paths = [
+                'api/simple_test.php',
+                './api/simple_test.php',
+                '/api/simple_test.php',
+                'simple_test.php',
+                'api/test.txt',
+                'test.txt'
+            ];
+            
+            let results = '🔍 Testando caminhos:\n\n';
+            
+            for (const path of paths) {
+                try {
+                    const response = await fetch(path);
+                    results += `✅ ${path} - Status: ${response.status}\n`;
+                } catch (error) {
+                    results += `❌ ${path} - Erro: ${error.message}\n`;
+                }
+            }
+            
+            showResult('paths-result', 'info', results);
+        }
+        
+        // Executar teste básico ao carregar
+        window.onload = function() {
+            showBrowserInfo();
+        };
+    </script>
+</body>
+</html>

@@ -63,11 +63,40 @@ async function handleLogin(event) {
       await loadBabysitters()
       showMainScreen()
     } else {
+      console.error("Erro de login:", data)
       errorElement.textContent = data.message || "Erro ao fazer login"
+
+      // Tentar diagnosticar o problema
+      if (data.error && data.error.includes("Connection refused")) {
+        errorElement.textContent = "Não foi possível conectar ao banco de dados. Verifique as configurações."
+      }
     }
   } catch (error) {
     console.error("Erro ao fazer login:", error)
-    errorElement.textContent = "Erro ao conectar ao servidor"
+    errorElement.textContent = "Erro ao conectar ao servidor. Verifique sua conexão."
+
+    // Adicionar botões para testar conexão
+    const buttonContainer = document.createElement("div")
+    buttonContainer.style.marginTop = "15px"
+    buttonContainer.style.display = "flex"
+    buttonContainer.style.gap = "10px"
+    buttonContainer.style.justifyContent = "center"
+
+    const testDbButton = document.createElement("button")
+    testDbButton.textContent = "Testar Banco de Dados"
+    testDbButton.className = "btn-secondary"
+    testDbButton.onclick = testDatabaseConnection
+
+    const testSimpleButton = document.createElement("button")
+    testSimpleButton.textContent = "Testar Servidor PHP"
+    testSimpleButton.className = "btn-secondary"
+    testSimpleButton.onclick = testSimpleConnection
+
+    buttonContainer.appendChild(testSimpleButton)
+    buttonContainer.appendChild(testDbButton)
+
+    errorElement.appendChild(document.createElement("br"))
+    errorElement.appendChild(buttonContainer)
   } finally {
     loginButton.disabled = false
     hideLoading()
@@ -738,3 +767,93 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("photo-input").addEventListener("change", handlePhotoUpload)
 })
+
+// Função para testar a conexão com o banco de dados
+async function testDatabaseConnection() {
+  try {
+    showLoading()
+    const response = await fetch(`${API_BASE_URL}/test_connection.php`)
+    const data = await response.json()
+
+    alert(
+      data.success
+        ? `Conexão bem-sucedida!\nServidor: ${data.environment.SERVER_SOFTWARE}\nPHP: ${data.environment.PHP_VERSION}`
+        : `Erro de conexão: ${data.error}\nHost: ${data.environment.DB_HOST}\nBanco: ${data.environment.DB_NOME}`,
+    )
+
+    console.log("Resultado do teste de conexão:", data)
+  } catch (error) {
+    console.error("Erro ao testar conexão:", error)
+    alert("Não foi possível conectar ao servidor de teste. Verifique sua conexão.")
+  } finally {
+    hideLoading()
+  }
+}
+
+// Adicionar estilo para botão secundário
+const style = document.createElement("style")
+style.textContent = `
+  .btn-secondary {
+    background: #f5f5f5;
+    color: #1976d2;
+    border: 1px solid #1976d2;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .btn-secondary:hover {
+    background: #e3f2fd;
+  }
+`
+document.head.appendChild(style)
+
+// Adicione esta função ao final do arquivo script.js
+
+// Função para testar se o PHP está funcionando
+async function testSimpleConnection() {
+  try {
+    showLoading()
+
+    // Exibir mensagem de tentativa
+    const errorElement = document.getElementById("login-error")
+    errorElement.textContent = "Testando conexão com o servidor..."
+
+    const response = await fetch(`${API_BASE_URL}/simple_test.php`)
+
+    if (!response.ok) {
+      throw new Error(`Erro HTTP: ${response.status}`)
+    }
+
+    const data = await response.json()
+
+    if (data.success) {
+      alert(
+        `Servidor PHP está funcionando!\nVersão PHP: ${data.server_info.php_version}\nServidor: ${data.server_info.server_software}`,
+      )
+      console.log("Resultado do teste simples:", data)
+      errorElement.textContent = "Servidor PHP está funcionando. O problema pode estar na conexão com o banco de dados."
+    } else {
+      alert("Resposta inesperada do servidor.")
+      console.log("Resposta inesperada:", data)
+    }
+  } catch (error) {
+    console.error("Erro no teste simples:", error)
+    alert(`Erro ao conectar ao servidor PHP: ${error.message}`)
+
+    // Mostrar instruções detalhadas
+    const errorElement = document.getElementById("login-error")
+    errorElement.innerHTML = `
+      <strong>Não foi possível conectar ao servidor PHP.</strong><br>
+      Possíveis causas:<br>
+      1. O servidor web não está executando PHP<br>
+      2. A pasta 'api' não existe ou está em local diferente<br>
+      3. Há um problema de CORS<br>
+      4. O caminho da API está incorreto<br><br>
+      Verifique o console para mais detalhes.
+    `
+  } finally {
+    hideLoading()
+  }
+}

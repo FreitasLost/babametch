@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de API PHP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        button {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #1565c0;
+        }
+        pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste de API PHP</h1>
+    
+    <div class="card">
+        <h2>Teste Simples</h2>
+        <p>Verifica se o PHP está funcionando corretamente.</p>
+        <button onclick="testSimple()">Executar Teste Simples</button>
+        <div id="simple-result"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Teste de Conexão com Banco de Dados</h2>
+        <p>Verifica se a conexão com o banco de dados está funcionando.</p>
+        <button onclick="testDatabase()">Testar Banco de Dados</button>
+        <div id="db-result"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Teste de Login Alternativo</h2>
+        <p>Testa o login sem usar banco de dados (usuário: teste@exemplo.com, senha: 123456).</p>
+        <button onclick="testLogin()">Testar Login</button>
+        <div id="login-result"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Informações do Servidor</h2>
+        <div id="server-info"></div>
+    </div>
+
+    <script>
+        // Função para mostrar resultados
+        function showResult(elementId, success, message, data) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `
+                <p class="${success ? 'success' : 'error'}">${message}</p>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+        
+        // Teste simples
+        async function testSimple() {
+            try {
+                const response = await fetch('simple_test.php');
+                const data = await response.json();
+                
+                showResult('simple-result', true, 'Teste simples bem-sucedido!', data);
+                
+                // Atualizar informações do servidor
+                document.getElementById('server-info').innerHTML = `
+                    <p><strong>Versão PHP:</strong> ${data.server_info.php_version}</p>
+                    <p><strong>Software do Servidor:</strong> ${data.server_info.server_software}</p>
+                    <p><strong>Endereço Remoto:</strong> ${data.server_info.remote_addr}</p>
+                    <p><strong>Data/Hora:</strong> ${data.server_info.request_time}</p>
+                    <p><strong>Host:</strong> ${data.server_info.http_host}</p>
+                `;
+            } catch (error) {
+                showResult('simple-result', false, 'Erro no teste simples', {
+                    error: error.message,
+                    stack: error.stack
+                });
+            }
+        }
+        
+        // Teste de banco de dados
+        async function testDatabase() {
+            try {
+                const response = await fetch('test_connection.php');
+                const data = await response.json();
+                
+                showResult('db-result', data.success, 
+                    data.success ? 'Conexão com banco de dados bem-sucedida!' : 'Erro na conexão com banco de dados', 
+                    data);
+            } catch (error) {
+                showResult('db-result', false, 'Erro ao testar banco de dados', {
+                    error: error.message,
+                    stack: error.stack
+                });
+            }
+        }
+        
+        // Teste de login
+        async function testLogin() {
+            try {
+                const response = await fetch('login_alt.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'teste@exemplo.com',
+                        senha: '123456'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                showResult('login-result', data.success, 
+                    data.success ? 'Login bem-sucedido!' : 'Falha no login', 
+                    data);
+            } catch (error) {
+                showResult('login-result', false, 'Erro ao testar login', {
+                    error: error.message,
+                    stack: error.stack
+                });
+            }
+        }
+        
+        // Executar teste simples ao carregar a página
+        window.onload = testSimple;
+    </script>
+</body>
+</html>

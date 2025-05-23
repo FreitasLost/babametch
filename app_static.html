@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabáMatch - Versão Estática</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background: #1565c0;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .message.success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
+
+        .message.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #2196f3;
+        }
+
+        .switch-link {
+            text-align: center;
+            margin-top: 1rem;
+            color: #666;
+        }
+
+        .switch-link a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .switch-link a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .main-app {
+            text-align: center;
+        }
+
+        .main-app h2 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+        }
+
+        .user-info {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .logout-btn {
+            background: #f44336;
+            margin-top: 1rem;
+        }
+
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>BabáMatch</h1>
+            <p>Encontre a babá perfeita para sua família</p>
+        </div>
+
+        <!-- Mensagem de status -->
+        <div id="message" class="hidden"></div>
+
+        <!-- Tela de Login -->
+        <div id="login-screen">
+            <div class="card">
+                <h2 style="text-align: center; color: #1976d2; margin-bottom: 1.5rem;">Entrar</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" value="teste@exemplo.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" value="123456" required>
+                    </div>
+                    <button type="submit" class="btn">Entrar</button>
+                </form>
+                <div class="switch-link">
+                    <p>Não tem uma conta? <a href="#" onclick="showRegister()">Cadastre-se</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Cadastro -->
+        <div id="register-screen" class="hidden">
+            <div class="card">
+                <h2 style="text-align: center; color: #1976d2; margin-bottom: 1.5rem;">Cadastrar</h2>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="reg-name">Nome completo</label>
+                        <input type="text" id="reg-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email">Email</label>
+                        <input type="email" id="reg-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">Senha</label>
+                        <input type="password" id="reg-password" required>
+                    </div>
+                    <button type="submit" class="btn">Cadastrar</button>
+                </form>
+                <div class="switch-link">
+                    <p>Já tem uma conta? <a href="#" onclick="showLogin()">Faça login</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela Principal -->
+        <div id="main-screen" class="hidden">
+            <div class="card main-app">
+                <h2>Bem-vindo ao BabáMatch!</h2>
+                <div class="user-info">
+                    <p><strong>Usuário:</strong> <span id="user-name"></span></p>
+                    <p><strong>Email:</strong> <span id="user-email"></span></p>
+                </div>
+                <div class="message info">
+                    <p>🎉 Esta é uma versão de demonstração funcionando sem banco de dados!</p>
+                    <p>Em uma versão completa, aqui você veria os perfis das babás para fazer matches.</p>
+                </div>
+                <button class="btn logout-btn" onclick="logout()">Sair</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        let currentUser = null;
+
+        // Elementos do DOM
+        const loginScreen = document.getElementById('login-screen');
+        const registerScreen = document.getElementById('register-screen');
+        const mainScreen = document.getElementById('main-screen');
+        const messageDiv = document.getElementById('message');
+
+        // Funções de utilidade
+        function showMessage(text, type = 'info') {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showLogin() {
+            loginScreen.classList.remove('hidden');
+            registerScreen.classList.add('hidden');
+            mainScreen.classList.add('hidden');
+        }
+
+        function showRegister() {
+            loginScreen.classList.add('hidden');
+            registerScreen.classList.remove('hidden');
+            mainScreen.classList.add('hidden');
+        }
+
+        function showMain() {
+            loginScreen.classList.add('hidden');
+            registerScreen.classList.add('hidden');
+            mainScreen.classList.remove('hidden');
+            
+            // Atualizar informações do usuário
+            document.getElementById('user-name').textContent = currentUser.name;
+            document.getElementById('user-email').textContent = currentUser.email;
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            showLogin();
+            showMessage('Logout realizado com sucesso!', 'success');
+        }
+
+        // Event listeners
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Simulação de login (sem servidor)
+            if (email === 'teste@exemplo.com' && password === '123456') {
+                currentUser = {
+                    name: 'Usuário de Teste',
+                    email: email
+                };
+                
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showMain();
+                showMessage('Login realizado com sucesso!', 'success');
+            } else {
+                showMessage('Email ou senha incorretos. Use: teste@exemplo.com / 123456', 'error');
+            }
+        });
+
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            
+            // Simulação de cadastro (sem servidor)
+            currentUser = {
+                name: name,
+                email: email
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showMain();
+            showMessage('Cadastro realizado com sucesso!', 'success');
+        });
+
+        // Verificar se há usuário logado ao carregar a página
+        window.onload = function() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMain();
+            } else {
+                showLogin();
+            }
+        };
+    </script>
+</body>
+</html>

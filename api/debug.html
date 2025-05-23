@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico PHP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        button {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #1565c0;
+        }
+        pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Diagnóstico PHP</h1>
+    
+    <div class="card">
+        <h2>Teste de Texto Simples</h2>
+        <p>Verifica se o PHP está funcionando e exibe informações detalhadas.</p>
+        <button onclick="testDebug()">Executar Diagnóstico</button>
+        <div id="debug-result"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Teste de JSON</h2>
+        <p>Verifica se o PHP consegue gerar JSON válido.</p>
+        <button onclick="testJson()">Testar JSON</button>
+        <div id="json-result"></div>
+    </div>
+    
+    <script>
+        // Função para mostrar resultados
+        function showResult(elementId, success, message, data) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `
+                <p class="${success ? 'success' : 'error'}">${message}</p>
+                <pre>${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+        
+        // Teste de diagnóstico
+        async function testDebug() {
+            try {
+                const response = await fetch('debug.php');
+                const text = await response.text();
+                
+                showResult('debug-result', true, 'Diagnóstico concluído', text);
+            } catch (error) {
+                showResult('debug-result', false, 'Erro no diagnóstico', {
+                    error: error.message,
+                    stack: error.stack
+                });
+            }
+        }
+        
+        // Teste de JSON
+        async function testJson() {
+            try {
+                const response = await fetch('json_test.php');
+                const data = await response.json();
+                
+                showResult('json-result', true, 'Teste de JSON bem-sucedido', data);
+            } catch (error) {
+                showResult('json-result', false, 'Erro no teste de JSON', {
+                    error: error.message,
+                    stack: error.stack
+                });
+            }
+        }
+    </script>
+</body>
+</html>
